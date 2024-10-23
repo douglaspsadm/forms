@@ -8,9 +8,9 @@ st.set_page_config(page_title="Inscrição em Oficinas", layout="wide")
 
 # Definição das oficinas e suas vagas
 OFICINAS = {
-    "BI": 1,
-    "CENSOFIX": 1,
-    "RELATÓRIOS": 1
+    "BI": 45,
+    "CENSOFIX": 30,
+    "RELATÓRIOS": 100
 }
 
 @st.cache_data(ttl=1)  # Cache com duração de 1 segundo
