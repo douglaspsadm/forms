@@ -1,4 +1,1 @@
 streamlit
-st-gsheets-connection
-pandas
-time
