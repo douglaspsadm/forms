@@ -117,6 +117,41 @@ def mostrar_inscricao_existente(participante):
     st.write(f"Dia 2 (31/10): {inscricao['oficina_dia2']}")
     st.warning("Não é permitido realizar mais de uma inscrição por participante.")
 
+def get_iniciais(nome):
+    """Converte o nome completo para iniciais"""
+    palavras = nome.split()
+    iniciais = ' '.join(palavra[0].upper() for palavra in palavras)
+    return iniciais
+
+def get_participantes_ies(ies_selecionada):
+    """Retorna lista de participantes da IES selecionada com suas iniciais"""
+    _, lista_evento = ler_dados_sheets()
+    co_ies = int(ies_selecionada.split(' - ')[0])
+    
+    # Filtrar participantes da IES
+    participantes = lista_evento[lista_evento['co_ies'].astype(int) == co_ies]['no_pessoa_fisica'].tolist()
+    
+    # Criar dicionário com mapeamento de iniciais para nome completo
+    if 'mapeamento_nomes' not in st.session_state:
+        st.session_state.mapeamento_nomes = {}
+    
+    # Criar lista de iniciais mantendo o mapeamento
+    participantes_iniciais = []
+    for nome in participantes:
+        iniciais = get_iniciais(nome)
+        # Adicionar um contador se houver duplicata de iniciais
+        base_iniciais = iniciais
+        contador = 1
+        while iniciais in st.session_state.mapeamento_nomes and \
+              st.session_state.mapeamento_nomes[iniciais] != nome:
+            iniciais = f"{base_iniciais} ({contador})"
+            contador += 1
+        
+        st.session_state.mapeamento_nomes[iniciais] = nome
+        participantes_iniciais.append(iniciais)
+    
+    return participantes_iniciais
+
 def main():
     st.title("Inscrição em Oficinas IX Ences")
 
@@ -126,15 +161,18 @@ def main():
 
     if ies != "Selecione uma IES...":
         # Seleção do Participante
-        participantes = get_participantes_ies(ies)
-        if participantes:
-            participante = st.selectbox("Selecione o Participante", 
-                                      options=["Selecione um participante..."] + participantes)
+        participantes_iniciais = get_participantes_ies(ies)
+        if participantes_iniciais:
+            participante_iniciais = st.selectbox("Selecione o Participante", 
+                                               options=["Selecione um participante..."] + participantes_iniciais)
             
-            if participante != "Selecione um participante...":
+            if participante_iniciais != "Selecione um participante...":
+                # Recuperar o nome completo do participante
+                nome_completo = st.session_state.mapeamento_nomes[participante_iniciais]
+                
                 # Verificar se o participante já está inscrito
-                if verificar_inscricao_existente(participante):
-                    mostrar_inscricao_existente(participante)
+                if verificar_inscricao_existente(nome_completo):
+                    mostrar_inscricao_existente(nome_completo)
                     return  # Encerra o fluxo aqui se já estiver inscrito
                 
                 # Continua com o fluxo normal se não estiver inscrito
@@ -151,7 +189,7 @@ def main():
                                               key="oficina_dia1")
 
                 # Botão para salvar a escolha do dia 1
-                salvar_dia1 = st.button("Salvar escolha do 1º dia")
+                salvar_dia1 = st.button("Salvar Primeiro Dia")
 
                 if "oficina_dia1_selecionada" not in st.session_state:
                     st.session_state.oficina_dia1_selecionada = None
@@ -173,12 +211,12 @@ def main():
                                                   options=["Selecione uma oficina..."] + oficinas_dia2_filtradas, 
                                                   key="oficina_dia2")
 
-                    submitted = st.button("Salvar escolha do 2º dia e enviar inscrição")
+                    submitted = st.button("Salvar segundo Dia e Enviar Inscrição")
 
                     if submitted:
                         # Verificar novamente antes de salvar, por segurança
-                        if verificar_inscricao_existente(participante):
-                            mostrar_inscricao_existente(participante)
+                        if verificar_inscricao_existente(nome_completo):
+                            mostrar_inscricao_existente(nome_completo)
                             return
 
                         if oficina_dia1 in ["Não há vagas disponíveis", "Selecione uma oficina..."] or \
@@ -189,7 +227,7 @@ def main():
                         oficina_dia1_final = st.session_state.oficina_dia1_selecionada
                         oficina_dia2_final = oficina_dia2.split(" (")[0]
 
-                        if adicionar_inscricao(ies, participante, oficina_dia1_final, oficina_dia2_final):
+                        if adicionar_inscricao(ies, nome_completo, oficina_dia1_final, oficina_dia2_final):
                             st.success("Inscrição realizada com sucesso!")
                             st.balloons()
 
