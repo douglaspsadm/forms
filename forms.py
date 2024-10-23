@@ -11,14 +11,14 @@ st.image(Image.open('logo.png').resize((400, 200)))
 # Definição das oficinas e suas vagas para cada dia
 OFICINAS = {
     "DIA1": {
-        "Consulta e extração de informações do Censo da Educação Superior no Power BI": 165,
-        "Manipulando e entendendo os relatórios do Censo da Educação Superior": 45,
-        "CensoFix: um software para auxiliar na correção e atualização de arquivos de migração": 30
+        "Consulta e extração no BI": 165,
+        "Relatórios do Censup": 45,
+        "CensoFix para migração": 30
     },
     "DIA2": {
-        "Consulta e extração de informações do Censo da Educação Superior no Power BI": 45,
-        "Manipulando e entendendo os relatórios do Censo da Educação Superior": 165,
-        "CensoFix: um software para auxiliar na correção e atualização de arquivos de migração": 30
+        "Consulta e extração no BI": 45,
+        "Relatórios do Censup": 165,
+        "CensoFix para migração": 30
     }
 }
 
