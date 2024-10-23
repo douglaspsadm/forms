@@ -6,7 +6,7 @@ from PIL import Image
 
 # Configuração da página
 
-st.set_page_config(page_title="Inscrição em Oficinas IX Ences", layout="wide")
+st.set_page_config(page_title="Inscrição em Oficinas IX Ences", layout="wide", page_icon='icone.png')
 st.image(Image.open('logo.png').resize((400, 200)))
 
 
@@ -82,7 +82,7 @@ def adicionar_inscricao(nome, ies, oficina_dia1, oficina_dia2):
 
 
 def main():
-    st.title("Inscrição em Oficinas")
+    st.title("Inscrição em Oficinas IX Ences")
 
     nome = st.text_input("Nome do Participante *")
     ies = st.text_input("Nome da IES *")
