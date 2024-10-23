@@ -103,6 +103,19 @@ def adicionar_inscricao(ies, participante, oficina_dia1, oficina_dia2):
     except Exception as e:
         st.error(f"Erro ao adicionar inscrição: {str(e)}")
         return False
+def verificar_inscricao_existente(participante):
+    """Verifica se o participante já está inscrito"""
+    inscritos, _ = ler_dados_sheets()
+    return participante in inscritos['nome_participante'].values
+
+def mostrar_inscricao_existente(participante):
+    """Mostra os detalhes da inscrição existente do participante"""
+    inscritos, _ = ler_dados_sheets()
+    inscricao = inscritos[inscritos['nome_participante'] == participante].iloc[0]
+    st.error("Você já está inscrito nas seguintes oficinas:")
+    st.write(f"Dia 1 (30/10): {inscricao['oficina_dia1']}")
+    st.write(f"Dia 2 (31/10): {inscricao['oficina_dia2']}")
+    st.warning("Não é permitido realizar mais de uma inscrição por participante.")
 
 def main():
     st.title("Inscrição em Oficinas IX Ences")
@@ -114,66 +127,81 @@ def main():
     if ies != "Selecione uma IES...":
         # Seleção do Participante
         participantes = get_participantes_ies(ies)
-        participante = st.selectbox("Selecione o Participante", options=["Selecione um participante..."] + participantes)
-
-        if participante != "Selecione um participante...":
-            # Oficina Dia 1
-            oficinas_dia1 = get_oficinas_disponiveis(1)
-            if not oficinas_dia1:
-                st.error("Não há mais vagas disponíveis para o primeiro dia!")
-                oficina_dia1 = st.selectbox("Escolha a oficina para o Dia 1 (30/10) *", 
-                                          options=["Não há vagas disponíveis"], 
-                                          key="oficina_dia1")
-            else:
-                oficina_dia1 = st.selectbox("Escolha a oficina para o Dia 1 (30/10) *", 
-                                          options=["Selecione uma oficina..."] + oficinas_dia1, 
-                                          key="oficina_dia1")
-
-            # Botão para salvar a escolha do dia 1
-            salvar_dia1 = st.button("Salvar Primeiro Dia")
-
-            if "oficina_dia1_selecionada" not in st.session_state:
-                st.session_state.oficina_dia1_selecionada = None
-
-            if salvar_dia1 and oficina_dia1 not in ["Selecione uma oficina...", "Não há vagas disponíveis"]:
-                st.session_state.oficina_dia1_selecionada = oficina_dia1.split(" (")[0]
-
-            if st.session_state.oficina_dia1_selecionada:
-                # Oficina Dia 2
-                oficinas_dia2_filtradas = get_oficinas_disponiveis(2, st.session_state.oficina_dia1_selecionada)
-
-                if not oficinas_dia2_filtradas:
-                    st.error("Não há mais vagas disponíveis para o segundo dia!")
-                    oficina_dia2 = st.selectbox("Escolha a oficina para o Dia 2 (31/10) *", 
+        if participantes:
+            participante = st.selectbox("Selecione o Participante", 
+                                      options=["Selecione um participante..."] + participantes)
+            
+            if participante != "Selecione um participante...":
+                # Verificar se o participante já está inscrito
+                if verificar_inscricao_existente(participante):
+                    mostrar_inscricao_existente(participante)
+                    return  # Encerra o fluxo aqui se já estiver inscrito
+                
+                # Continua com o fluxo normal se não estiver inscrito
+                # Oficina Dia 1
+                oficinas_dia1 = get_oficinas_disponiveis(1)
+                if not oficinas_dia1:
+                    st.error("Não há mais vagas disponíveis para o primeiro dia!")
+                    oficina_dia1 = st.selectbox("Escolha a oficina para o Dia 1 (30/10) *", 
                                               options=["Não há vagas disponíveis"], 
-                                              key="oficina_dia2")
+                                              key="oficina_dia1")
                 else:
-                    oficina_dia2 = st.selectbox("Escolha a oficina para o Dia 2 (31/10) *", 
-                                              options=["Selecione uma oficina..."] + oficinas_dia2_filtradas, 
-                                              key="oficina_dia2")
+                    oficina_dia1 = st.selectbox("Escolha a oficina para o Dia 1 (30/10) *", 
+                                              options=["Selecione uma oficina..."] + oficinas_dia1, 
+                                              key="oficina_dia1")
 
-                submitted = st.button("Salvar segundo Dia e Enviar Inscrição")
+                # Botão para salvar a escolha do dia 1
+                salvar_dia1 = st.button("Salvar escolha do 1º dia")
 
-                if submitted:
-                    if oficina_dia1 in ["Não há vagas disponíveis", "Selecione uma oficina..."] or \
-                       oficina_dia2 in ["Não há vagas disponíveis", "Selecione uma oficina..."]:
-                        st.error("Por favor, selecione oficinas válidas nos dois dias!")
-                        return
+                if "oficina_dia1_selecionada" not in st.session_state:
+                    st.session_state.oficina_dia1_selecionada = None
 
-                    oficina_dia1_final = st.session_state.oficina_dia1_selecionada
-                    oficina_dia2_final = oficina_dia2.split(" (")[0]
+                if salvar_dia1 and oficina_dia1 not in ["Selecione uma oficina...", "Não há vagas disponíveis"]:
+                    st.session_state.oficina_dia1_selecionada = oficina_dia1.split(" (")[0]
 
-                    if adicionar_inscricao(ies, participante, oficina_dia1_final, oficina_dia2_final):
-                        st.success("Inscrição realizada com sucesso!")
-                        st.balloons()
+                if st.session_state.oficina_dia1_selecionada:
+                    # Oficina Dia 2
+                    oficinas_dia2_filtradas = get_oficinas_disponiveis(2, st.session_state.oficina_dia1_selecionada)
 
-                        # Limpa o cache e força atualização
-                        st.cache_data.clear()
-                        time.sleep(2)
-                        st.rerun()
+                    if not oficinas_dia2_filtradas:
+                        st.error("Não há mais vagas disponíveis para o segundo dia!")
+                        oficina_dia2 = st.selectbox("Escolha a oficina para o Dia 2 (31/10) *", 
+                                                  options=["Não há vagas disponíveis"], 
+                                                  key="oficina_dia2")
                     else:
-                        st.error("Não foi possível realizar a inscrição. Por favor, tente novamente.")
-                        st.cache_data.clear()
+                        oficina_dia2 = st.selectbox("Escolha a oficina para o Dia 2 (31/10) *", 
+                                                  options=["Selecione uma oficina..."] + oficinas_dia2_filtradas, 
+                                                  key="oficina_dia2")
+
+                    submitted = st.button("Salvar escolha do 2º dia e enviar inscrição")
+
+                    if submitted:
+                        # Verificar novamente antes de salvar, por segurança
+                        if verificar_inscricao_existente(participante):
+                            mostrar_inscricao_existente(participante)
+                            return
+
+                        if oficina_dia1 in ["Não há vagas disponíveis", "Selecione uma oficina..."] or \
+                           oficina_dia2 in ["Não há vagas disponíveis", "Selecione uma oficina..."]:
+                            st.error("Por favor, selecione oficinas válidas nos dois dias!")
+                            return
+
+                        oficina_dia1_final = st.session_state.oficina_dia1_selecionada
+                        oficina_dia2_final = oficina_dia2.split(" (")[0]
+
+                        if adicionar_inscricao(ies, participante, oficina_dia1_final, oficina_dia2_final):
+                            st.success("Inscrição realizada com sucesso!")
+                            st.balloons()
+
+                            # Limpa o cache e força atualização
+                            st.cache_data.clear()
+                            time.sleep(2)
+                            st.rerun()
+                        else:
+                            st.error("Não foi possível realizar a inscrição. Por favor, tente novamente.")
+                            st.cache_data.clear()
+        else:
+            st.error("Nenhum participante encontrado para esta IES")
 
 if __name__ == "__main__":
     main()
