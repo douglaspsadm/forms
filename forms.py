@@ -2,9 +2,12 @@ import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 import time
+from PIL import Image
 
 # Configuração da página
+
 st.set_page_config(page_title="Inscrição em Oficinas", layout="wide")
+st.image(Image.open('logo.png').resize((400, 200)))
 
 # Definição das oficinas e suas vagas
 OFICINAS = {
@@ -113,7 +116,7 @@ def main():
 
         st.markdown("(*) Campos obrigatórios")
 
-        submitted = st.button("Enviar Inscrição")
+        submitted = st.button("Salvar segundo Dia e Enviar Inscrição")
 
         if submitted:
             if not nome.strip():
