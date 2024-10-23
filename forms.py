@@ -6,7 +6,7 @@ from PIL import Image
 
 # Configuração da página
 
-st.set_page_config(page_title="Inscrição em Oficinas IX Ences", layout="wide", page_icon='icone.png')
+st.set_page_config(page_title="Inscrição em Oficinas IX Ences", page_icon='icone.png')
 st.image(Image.open('logo.png').resize((400, 200)))
 
 
