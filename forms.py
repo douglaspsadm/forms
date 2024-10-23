@@ -9,6 +9,7 @@ from PIL import Image
 st.set_page_config(page_title="Inscrição em Oficinas", layout="wide")
 st.image(Image.open('logo.png').resize((400, 200)))
 
+
 # Definição das oficinas e suas vagas
 OFICINAS = {
     "BI": 1,
