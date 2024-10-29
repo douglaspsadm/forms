@@ -11,13 +11,13 @@ st.image(Image.open('logo.png').resize((400, 200)))
 # Definição das oficinas e suas vagas para cada dia
 OFICINAS = {
     "DIA1": {
-        "Consulta e extração no BI": 165,
-        "Relatórios do Censup": 45,
+        "Consulta e extração no BI": 168,
+        "Relatórios do Censup": 42,
         "CensoFix para migração": 30
     },
     "DIA2": {
-        "Consulta e extração no BI": 45,
-        "Relatórios do Censup": 165,
+        "Consulta e extração no BI": 42,
+        "Relatórios do Censup": 168,
         "CensoFix para migração": 30
     }
 }
