@@ -22,6 +22,7 @@ OFICINAS = {
     }
 }
 
+
 @st.cache_data(ttl=1)
 def ler_dados_sheets():
     """Lê os dados das duas abas do Google Sheets"""
